@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Foursquare</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="connected_to_foursquare">Hey looks like you’re connected to Foursquare!</string>
+    <string name="app_not_installed_message">To do this, you’ll need the latest version of Foursquare installed.</string>
+
+</resources>
