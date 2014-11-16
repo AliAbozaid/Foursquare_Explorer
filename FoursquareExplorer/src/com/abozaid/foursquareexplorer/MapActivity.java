@@ -68,8 +68,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 	Map<String, String> CheckInData;
 	SharedPreferences UserInformation;
 	final String ACCESS_TOKEN = "accessToken";
-	response savedResponse;
-	public OnSuccess re;
+	static response savedResponse;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -270,10 +270,10 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 	}
 	//function to return venue_id to make check_in in that place
 	public String getVenueId(double lat, double lan) {
-		for (int i = 0; i < re.getSuccess().venues.size(); i++) {
-			if (re.getSuccess().venues.get(i).location.lat == lat && re.getSuccess().venues.get(i).location.lng == lan) 
+		for (int i = 0; i < savedResponse.venues.size(); i++) {
+			if (savedResponse.venues.get(i).location.lat == lat && savedResponse.venues.get(i).location.lng == lan) 
 			{
-				return re.getSuccess().venues.get(i).id;
+				return savedResponse.venues.get(i).id;
 			}
 		}
 		return "";
@@ -364,7 +364,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 		public void onEventMainThread(OnSuccess success) 
 		{
 			// TODO Auto-generated method stub
-			re = success;
+			savedResponse = success.getSuccess();
 			map.clear();
 			//to show pin on map
 			drawPinOnMap(success.getSuccess());
