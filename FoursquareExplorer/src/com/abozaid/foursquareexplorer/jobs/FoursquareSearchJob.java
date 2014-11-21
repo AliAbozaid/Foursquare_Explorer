@@ -1,6 +1,5 @@
 package com.abozaid.foursquareexplorer.jobs;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,11 +10,8 @@ import java.net.URL;
 
 import retrofit.RetrofitError;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.abozaid.foursquareexplorer.events.OnError;
@@ -39,8 +35,7 @@ public class FoursquareSearchJob extends Job {
 	InputStream is;
 	Bitmap returnedBMP;
 	Context context;
-	Bitmap venueImage;
-	final String TAG = "MyTag";
+	Bitmap b;
 	
 	public FoursquareSearchJob(String ll,String oauth_token, String v, String radius,Context con, int PRIORITY) {
 		super(new Params(PRIORITY).requireNetwork());
@@ -92,10 +87,7 @@ public class FoursquareSearchJob extends Job {
 						else
 						{
 							//save image in memory using Lru cache 
-							venueImage =  DownloadBMP(re.response.venues.get(i).categories.get(0).icon.prefix+"bg_88"+re.response.venues.get(i).categories.get(0).icon.suffix);
-							MemoryCacheSingleton.addBitmapToMemoryCache(re.response.venues.get(i).categories.get(0).id,venueImage);
-							//save image in external
-							storeImage(venueImage, re.response.venues.get(i).categories.get(0).id);
+							MemoryCacheSingleton.addBitmapToMemoryCache(re.response.venues.get(i).categories.get(0).id, DownloadBMP(re.response.venues.get(i).categories.get(0).icon.prefix+"bg_88"+re.response.venues.get(i).categories.get(0).icon.suffix));
 						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -130,41 +122,6 @@ public class FoursquareSearchJob extends Job {
 			e.printStackTrace();
 		}
 	}
-	//method to save image in internal or external storage
-	private void storeImage(Bitmap image,String imageName) {
-	    File pictureFile = getOutputMediaFile(imageName);
-	    if (pictureFile == null) {
-	        Log.d(TAG,"Error creating media file, check storage permissions: ");// e.getMessage());
-	        return;
-	    } 
-	    try {
-	        FileOutputStream fos = new FileOutputStream(pictureFile);
-	        image.compress(Bitmap.CompressFormat.PNG, 90, fos);
-	        fos.close();
-	    } catch (FileNotFoundException e) {
-	        Log.d(TAG, "File not found: " + e.getMessage());
-	    } catch (IOException e) {
-	        Log.d(TAG, "Error accessing file: " + e.getMessage());
-	    }  
-	}
-	//method to create file to save image on it
-	private  File getOutputMediaFile(String imageName){
-		//create folder with name FoursquareAPI
-		File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-				+ "/FoursquareAPI");
-
-	    // Create the storage directory if it does not exist
-	    if (! mediaStorageDir.exists()){
-	        if (! mediaStorageDir.mkdirs()){
-	            return null;
-	        }
-	    } 
-	    File mediaFile;
-	        String mImageName= imageName +".png";
-	        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);  
-	    return mediaFile;
-	} 
-	
 	//method to get image from server
 	private Bitmap DownloadBMP(String url)  
 	{
@@ -181,8 +138,7 @@ public class FoursquareSearchJob extends Job {
 		}  
 	        //returns the downloaded bitmap  
 	        return returnedBMP;
-	}
-
+	}  
 	
 	@Override
 	protected void onCancel() {
