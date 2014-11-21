@@ -1,5 +1,6 @@
 package com.abozaid.foursquareexplorer;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,9 +16,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -323,6 +327,13 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 			e.printStackTrace();
 		}
 	}
+	//method to get bitmap from internal/external storage
+	public Bitmap getImage(String fileName) {
+		File f = new File(Environment.getExternalStorageDirectory()
+				+ "/FoursquareAPI" + "/" + fileName + ".png");
+		Bitmap bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
+		return bmp;
+	}
 	//method for put pin on map
 	public void drawPinOnMap(response respons)
 	{
@@ -344,7 +355,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 					map.addMarker(new MarkerOptions().position(new LatLng(savedResponse.venues.get(i).location.lat, savedResponse.venues.get(i).location.lng))
 						.flat(false)
 						.title(savedResponse.venues.get(i).name)
-						.snippet(savedResponse.venues.get(i).categories.get(0).name));
+						.snippet(savedResponse.venues.get(i).categories.get(0).name)
+						.icon(BitmapDescriptorFactory.fromBitmap(getImage(savedResponse.venues.get(i).categories.get(0).id))));
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
