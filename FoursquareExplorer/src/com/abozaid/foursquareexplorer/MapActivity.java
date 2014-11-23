@@ -1,12 +1,6 @@
 package com.abozaid.foursquareexplorer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.OptionalDataException;
-import java.io.StreamCorruptedException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -36,6 +30,7 @@ import com.abozaid.foursquareexplorer.mapstate.GPSTracker;
 import com.abozaid.foursquareexplorer.mapstate.MapStateManager;
 import com.abozaid.foursquareexplorer.model.FoursquareSearch.response;
 import com.abozaid.foursquareexplorer.singleton.MemoryCacheSingleton;
+import com.abozaid.foursquareexplorer.singleton.ReadWriteToFile;
 import com.abozaid.foursquaretest.R;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -59,16 +54,11 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 	GoogleMap map;
 	CameraUpdate cameraViewOnMap;
 	Context context;
-	double latitude;
-	double longitude;
-	String ll;
+	double latitude, longitude;
 	private JobManager jobManager;
-	String v;
-	String token;
-	String radius;
+	String v, ll, token, radius ;
 	GPSTracker gps;
 	static boolean resumeGps;
-
 	Map<String, String> CheckInData;
 	SharedPreferences UserInformation;
 	final String ACCESS_TOKEN = "accessToken";
@@ -133,7 +123,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 			gps.showSettingsAlert();
 		}
 		//read cached data from file
-		String cacheString = read("cached");
+		String cacheString = ReadWriteToFile.read("cached", context);
 		//if file is not empty or not exist
 		if (cacheString != null)
 		{
@@ -288,34 +278,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(milis);
 		return sd.format(calendar.getTime());
-	}
-	//function to read cached data from file
-	public String read(String fname) {
-		String simpleClass = null;
-		try {
-			FileInputStream fis = context.openFileInput(fname);
-			ObjectInputStream is = new ObjectInputStream(fis);
-			simpleClass = (String) is.readObject();
-			is.close();
-		} catch (StreamCorruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OptionalDataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return simpleClass;
-	}
-	
+	}	
 	//function call job to get search request from server
 	public void myjob(String ll, String token, String v, String radius) {
 		try 
