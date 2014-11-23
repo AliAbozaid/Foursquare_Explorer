@@ -18,19 +18,23 @@ package com.abozaid.foursquareexplorer.singleton;
 public class TokenSingleton {
 	private static TokenSingleton sInstance;
 	private String token;
-	
+
+	private TokenSingleton() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public static TokenSingleton get() {
 		if (sInstance == null) {
 			sInstance = new TokenSingleton();
 		}
-		
+
 		return sInstance;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
-	
+
 	public void setToken(String token) {
 		this.token = token;
 	}
