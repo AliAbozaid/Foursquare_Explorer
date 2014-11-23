@@ -5,7 +5,7 @@ import retrofit.RestAdapter;
 public class RetrofitSingleton {
 	private static RestAdapter restAdapter = null;
 
-	public RetrofitSingleton() {
+	private RetrofitSingleton() {
 
 	}
 

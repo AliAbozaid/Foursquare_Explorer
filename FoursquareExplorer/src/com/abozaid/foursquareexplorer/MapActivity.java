@@ -30,7 +30,6 @@ import com.abozaid.foursquareexplorer.mapstate.GPSTracker;
 import com.abozaid.foursquareexplorer.mapstate.MapStateManager;
 import com.abozaid.foursquareexplorer.model.FoursquareSearch.response;
 import com.abozaid.foursquareexplorer.singleton.MemoryCacheSingleton;
-import com.abozaid.foursquareexplorer.singleton.ReadWriteToFile;
 import com.abozaid.foursquaretest.R;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -109,7 +108,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
-		//if user ofen his location
+		//if user open his location
 		if (gps.canGetLocation()) 
 		{
 			//call to update venues on map and update camera view
@@ -119,7 +118,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
 		else 
 		{
 			resumeGps = true;
-			//show dialo to user enable from settings his location 
+			//show dialog to user enable from settings his location 
 			gps.showSettingsAlert();
 		}
 		//read cached data from file

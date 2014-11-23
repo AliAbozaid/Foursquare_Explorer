@@ -10,7 +10,7 @@ public class MemoryCacheSingleton {
 	static int cacheSize = maxMemory / 8;
 	private static LruCache<String, Bitmap> mMemoryCache;
 
-	public MemoryCacheSingleton() {
+	private MemoryCacheSingleton() {
 
 	}
 
