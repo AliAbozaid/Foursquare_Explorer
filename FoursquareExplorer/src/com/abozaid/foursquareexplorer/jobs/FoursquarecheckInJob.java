@@ -37,13 +37,13 @@ public class FoursquarecheckInJob extends Job{
 	public void onRun() throws Throwable {
 		// TODO Auto-generated method stub
 		//Initiate request
-		AddCheck_in retrofitAddUser = RetrofitSingleton.getInstance().create(AddCheck_in.class);
+		AddCheck_in retrofitcheckIn = RetrofitSingleton.getInstance().create(AddCheck_in.class);
 		try {
 			//send information to make check_in using retrofit
-			FoursquareAddCheckIn re = retrofitAddUser.AddCheck_in(CheckInData);
+			FoursquareAddCheckIn checkInResponse = retrofitcheckIn.AddCheck_in(CheckInData);
 			
 			//check if request is true
-			if(re.meta.code!=200)
+			if(checkInResponse.meta.code!=200)
 			{
 				EventBus.getDefault().post(new OnError("error"));
 			}

@@ -5,13 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import retrofit.RetrofitError;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -23,6 +21,7 @@ import com.abozaid.foursquareexplorer.events.OnSuccess;
 import com.abozaid.foursquareexplorer.jobs.Controller.getNearPlace;
 import com.abozaid.foursquareexplorer.model.FoursquareSearch;
 import com.abozaid.foursquareexplorer.singleton.MemoryCacheSingleton;
+import com.abozaid.foursquareexplorer.singleton.ReadWriteToFile;
 import com.abozaid.foursquareexplorer.singleton.RetrofitSingleton;
 import com.abozaid.foursquaretest.R;
 import com.google.gson.Gson;
@@ -35,8 +34,7 @@ import de.greenrobot.event.EventBus;
 public class FoursquareSearchJob extends Job {
 	String ll,oauth_token,v,radius;
 	
-	URL location;
-	InputStream is;
+	
 	Bitmap returnedBMP;
 	Context context;
 	Bitmap venueImage;
@@ -66,8 +64,8 @@ public class FoursquareSearchJob extends Job {
 		try 
 		{
 			//get data nearest venues from server using retrofit
-			FoursquareSearch re = retrofitNearPlaceList.getNearPlace(ll, oauth_token, v, radius);
-			if(re.meta.code!=200)
+			FoursquareSearch searchResponse = retrofitNearPlaceList.getNearPlace(ll, oauth_token, v, radius);
+			if(searchResponse.meta.code!=200)
 			{
 				
 				EventBus.getDefault().post(new OnError("error"));
@@ -76,36 +74,36 @@ public class FoursquareSearchJob extends Job {
 			{
 				
 				Gson gson = new Gson();
-				String strinResponse = gson.toJson(re.response);
+				String strinResponse = gson.toJson(searchResponse.response);
 				//cache data in file
-				write("cached", strinResponse);
+				ReadWriteToFile.write("cached", strinResponse, context);
 				//for loop to get image from server and cache it in memory
-				for(int i = 0;i<re.response.venues.size();i++)
+				for(int i = 0;i<searchResponse.response.venues.size();i++)
 				{
 					try 
 					{
 						//check if image is already saved in memory
-						if(MemoryCacheSingleton.getBitmapFromMemCache(re.response.venues.get(i).categories.get(0).id)!=null)
+						if(MemoryCacheSingleton.getBitmapFromMemCache(searchResponse.response.venues.get(i).categories.get(0).id)!=null)
 						{
 							continue;
 						}
 						else
 						{
 							//save image in memory using Lru cache 
-							venueImage =  DownloadBMP(re.response.venues.get(i).categories.get(0).icon.prefix+"bg_88"+re.response.venues.get(i).categories.get(0).icon.suffix);
-							MemoryCacheSingleton.addBitmapToMemoryCache(re.response.venues.get(i).categories.get(0).id,venueImage);
+							venueImage =  DownloadBMP(searchResponse.response.venues.get(i).categories.get(0).icon.prefix+"bg_88"+searchResponse.response.venues.get(i).categories.get(0).icon.suffix);
+							MemoryCacheSingleton.addBitmapToMemoryCache(searchResponse.response.venues.get(i).categories.get(0).id,venueImage);
 							//save image in external
-							storeImage(venueImage, re.response.venues.get(i).categories.get(0).id);
+							storeImage(venueImage, searchResponse.response.venues.get(i).categories.get(0).id);
 						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						//make the default image if he can't get image from server
-						re.response.venues.get(i).bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.marker);
+						searchResponse.response.venues.get(i).bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.marker);
 						continue;
 					}					
 				}
-				EventBus.getDefault().post(new OnSuccess (re.response));
+				EventBus.getDefault().post(new OnSuccess (searchResponse.response));
 			}
 				
 			
@@ -114,22 +112,7 @@ public class FoursquareSearchJob extends Job {
 			Toast.makeText(context, e.getResponse().getStatus(), Toast.LENGTH_LONG).show();
 		}
 	}
-	//method to cache data in file 
-	public void write(String fname, String re) {
-		try {
-			FileOutputStream fos = context.openFileOutput(fname,
-					Context.MODE_PRIVATE);
-			ObjectOutputStream os = new ObjectOutputStream(fos);
-			os.writeObject(re);
-			os.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 	//method to save image in internal or external storage
 	private void storeImage(Bitmap image,String imageName) {
 	    File pictureFile = getOutputMediaFile(imageName);
